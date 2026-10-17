@@ -231,5 +231,5 @@ jom            # 或 nmake
 
 本项目基于 [MIT License](LICENSE) 开源。
 
-版权声明中的 `QT_Face Contributors` 可替换为你的姓名或 GitHub 用户名。
+版权声明见 [LICENSE](LICENSE)：`Copyright (c) 2026 Mr-Zeng-bot`。
 第三方组件（ncnn / OpenCV / Qt）及海康 MVS SDK、InsightFace 模型权重各自遵循其上游许可，不在本许可范围内。
