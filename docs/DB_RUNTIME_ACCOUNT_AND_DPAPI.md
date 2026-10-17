@@ -12,7 +12,7 @@
 4. 程序运行账号没有 `TRIGGER` 或 `SET_USER_ID`。
 5. MySQL 口令使用 Windows DPAPI CurrentUser 范围加密后写入 `config.ini`。
 
-当前工作区没有 `.git`，因此没有 commit；复核以文件内容为准。
+工作区已初始化 Git 仓库并提交初始基线（见根目录 `.gitignore`，`config.ini` 已被排除）；复核可就近查看 `git diff` 与文件内容。
 
 ## 2. 角色与权限边界
 
@@ -273,4 +273,4 @@ ERROR 1142 (42000): CREATE command denied to user 'face_app'@'localhost'
 - 纯 DML 运行账号无法自行发现或修复缺失的触发器，必须依赖管理员维护。
 - DPAPI 不能防御同一 Windows 用户下的内存读取或恶意程序。
 - DPAPI CurrentUser 密文不能在另一个 Windows 用户下直接使用。
-- 当前工作区没有 Git 仓库，改动没有提交记录。
+- `config.ini` 被 `.gitignore` 排除，DPAPI 密文与本机 Windows 用户绑定，不入版本库。
