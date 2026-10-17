@@ -1,17 +1,18 @@
 # 只影响 Qt Creator / clangd 的代码模型，不参与 MSVC 实际编译。
+# 本文件不含任何绝对路径，克隆到任意目录都直接可用。
 #
 # 问题：Qt Creator 的 clangd 集成会在编译命令里主动抹掉 __clang__（-U__clang__ 及
-# -U__clang_major__ 等，见 build/.../.qtc_clangd/compile_commands.json）。而 MSVC 14.5x
+# -U__clang_major__ 等，见 build/*/.qtc_clangd/compile_commands.json）。而 MSVC 14.5x
 # 的 __msvc_int128.hpp 用 #ifdef __clang__ 判断是否调用 MSVC 专有的 _udiv128/_div128：
 # 被抹掉后头文件走了 MSVC 分支，clangd 于是误报
 # "use of undeclared identifier '_udiv128'; did you mean '_UDiv128'?"。
 #
-# 处理：给代码模型强制包含一个补丁头文件，把 clang 缺的这两个内置函数声明补上
-# （见 .clangd-msvc-intrinsics.h）。这里用 -include 而不是 Qt Creator 的 -U__clang__，
-# 是为了不动 __clang__ —— 把 __clang__ 设回去会让 MSVC STL 的版本检查
-# （error STL1000: Unexpected compiler version, expected Clang 20 or newer）失败。
+# 处理：把这些 -U 参数从命令行里删掉，让 __clang__ 及其版本宏保持 clang 的真实取值，
+# 头文件自然走 clang 分支。这样既不用补丁头文件，也不用写死任何工程路径。
+# 前提：MSVC STL 要求 clang 主版本 ≥ 20（否则报 STL1000），Qt 6.12 配套的
+# Qt Creator 内置 clang 已满足。
 CompileFlags:
-  Add: ['/FID:/QT_Face/.clangd-msvc-intrinsics.h']
+  Remove: [-U__clang__, -U__clang_major__, -U__clang_minor__, -U__clang_patchlevel__, -U__clang_version__]
 #
 # 另外两条是第三方头文件与 MSVC 的"兼容告警"，只在 Qt/ncnn 头文件里出现：
 #   C4273 inconsistent-dllimport —— ncnn/gpu.h 里 create_gpu_instance 的 friend 声明
