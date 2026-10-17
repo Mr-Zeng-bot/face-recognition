@@ -82,14 +82,19 @@ bool FaceDatabase::open(QString &error)
         close();
         return false;
     }
+    // 先把「本次重载对应的版本号」读出来，重载成功后再记录。
+    // 反过来（先重载、后读版本）会把重载期间发生的变更误标成已同步，
+    // 那条变更就得等下一次修改才会生效。
+    qint64 loadedRevision = 0;
+    if (!cacheRevision(loadedRevision, error)) {
+        close();
+        return false;
+    }
     if (!reloadFeatures(error)) {
         close();
         return false;
     }
-    if (!cacheRevision(m_cacheRevision, error)) {
-        close();
-        return false;
-    }
+    m_cacheRevision = loadedRevision;
 
     qDebug() << "[FaceDatabase] 连接成功，缓存特征数:" << m_records.size();
     return true;
@@ -221,14 +226,19 @@ bool FaceDatabase::registerFace(const QString &employeeNo,
     }
 
     // 3) 刷新内存缓存（1:N 比对用的是缓存，刷不上必须让调用方知道）
+    //    本事务已提交，后面读到的版本号一定包含刚写入的这张模板；先读版本、
+    //    再重载，并把版本记为「重载前那一版」，这样重载期间别人改库产生的
+    //    更新版本不会被误判成已同步，下一轮轮询会补上。
+    qint64 committedRevision = 0;
+    if (!cacheRevision(committedRevision, error)) {
+        error = QStringLiteral("特征已入库，但读取缓存版本失败: ") + error;
+        return false;
+    }
     if (!reloadFeatures(error)) {
         error = QStringLiteral("特征已入库，但刷新特征缓存失败: ") + error;
         return false;
     }
-    if (!cacheRevision(m_cacheRevision, error)) {
-        error = QStringLiteral("特征已入库，但读取缓存版本失败: ") + error;
-        return false;
-    }
+    m_cacheRevision = committedRevision;
     return true;
 }
 
@@ -351,9 +361,9 @@ bool FaceDatabase::syncCacheIfChanged(bool &changed, QString &error)
     if (!reloadFeatures(error))
         return false;
 
-    // 重载期间如果又发生了变更，记录最新版本，下一轮会再次刷新。
-    if (!cacheRevision(m_cacheRevision, error))
-        return false;
+    // 只把版本推进到「重载前读到的那一版」。重载期间若又发生变更，其版本号更大，
+    // 下一轮轮询会再次刷新，不会被漏掉；重载失败时不动 m_cacheRevision，下轮重试。
+    m_cacheRevision = revision;
     changed = true;
     return true;
 }

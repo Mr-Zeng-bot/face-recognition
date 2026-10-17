@@ -22,6 +22,21 @@ QString timestampForFile()
     return QDateTime::currentDateTime().toString(QStringLiteral("yyyyMMdd_HHmmss_zzz"));
 }
 
+// 工号由 MySQL 管理员维护，直接拼进文件名可能含 \ / : * ? " < > | 等 Windows
+// 非法字符，甚至含 .. 而越出 captures 目录。这里只保留字母数字与 _ -，
+// 其余一律替换成下划线并限长，保证文件名成分一定落在目标目录内。
+QString safeFileComponent(const QString &raw)
+{
+    QString out;
+    out.reserve(raw.size());
+    for (const QChar &c : raw) {
+        const bool keep = c.isLetterOrNumber() || c == QLatin1Char('_') || c == QLatin1Char('-');
+        out.append(keep ? c : QLatin1Char('_'));
+    }
+    if (out.size() > 64) out.truncate(64);
+    return out;
+}
+
 // 同一目标重复写识别日志 / 存抓拍图的最小间隔（毫秒）。
 // 流水线约 5 帧/秒处理，不做冷却的话相机前有人时日志与抓拍图会无节制增长。
 const qint64 kLogCooldownMs = 3000;
@@ -101,8 +116,9 @@ QString FacePipeline::saveCapture(const cv::Mat &faceBgr, const QString &employe
     QDir dir(base.filePath(day));
     if (!dir.exists() && !dir.mkpath(QStringLiteral("."))) return {};
 
+    const QString tag = safeFileComponent(employeeNo);
     const QString name = QStringLiteral("%1_%2.jpg")
-                             .arg(employeeNo.isEmpty() ? QStringLiteral("unknown") : employeeNo,
+                             .arg(tag.isEmpty() ? QStringLiteral("unknown") : tag,
                                   timestampForFile());
     const QString path = dir.filePath(name);
     const QImage image = ImagePreprocess::fromBgrMat(faceBgr);
@@ -310,18 +326,24 @@ void FacePipeline::registerFace(const QImage &image, const QString &employeeNo)
         return;
     }
 
-    // 保存注册用的人脸图（与识别抓拍分目录存放，便于人工核对）
-    saveCapture(aligned, employeeNo, QStringLiteral("register"));
+    // 保存注册用的人脸图（与识别抓拍分目录存放，便于人工核对）。
+    // 图片只是辅助留档，特征已经入库，所以保存失败不影响注册结果，
+    // 但必须让用户知道，不能伪装成完全成功。
+    const QString capturePath = saveCapture(aligned, employeeNo, QStringLiteral("register"));
 
     // 提示该工号已有几张模板，方便知道还差几个方向没采
     QString cntErr;
     const int templates = m_db->templateCount(employeeNo, cntErr);
-    emit registerFinished(true,
-        QStringLiteral("注册成功: %1 %2，该工号模板 %3/%4 张，库内共 %5 人")
-            .arg(employeeNo, employeeName)
-            .arg(templates > 0 ? templates : 1)
-            .arg(FaceDatabase::kMaxTemplatesPerEmployee)
-            .arg(m_db->cachedEmployeeCount()));
+    QString message = QStringLiteral("注册成功: %1 %2，该工号模板 %3/%4 张，库内共 %5 人")
+                          .arg(employeeNo, employeeName)
+                          .arg(templates > 0 ? templates : 1)
+                          .arg(FaceDatabase::kMaxTemplatesPerEmployee)
+                          .arg(m_db->cachedEmployeeCount());
+    if (capturePath.isEmpty()) {
+        message += QStringLiteral("；注意：注册图未保存到 %1，请检查目录权限与磁盘空间")
+                       .arg(QDir::toNativeSeparators(AppConfig::instance().imageSaveDir));
+    }
+    emit registerFinished(true, message);
 }
 
 void FacePipeline::lookupEmployee(const QString &employeeNo)

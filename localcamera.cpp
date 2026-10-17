@@ -2,6 +2,7 @@
 #include "imagepreprocess.h"
 
 #include <QThread>
+#include <QDebug>
 #include <atomic>
 #include <opencv2/videoio.hpp>
 
@@ -129,6 +130,12 @@ void LocalCamera::openDevice(int index)
 void LocalCamera::closeDevice()
 {
     stopGrabbing();
+    // stopGrabbing 只在确认采集线程结束后才销毁它。若 m_thread 仍非空，说明线程还卡在
+    // 驱动里，此时释放并销毁 VideoCapture 会让线程内部用到悬空指针，因此放弃关闭。
+    if (m_thread != nullptr) {
+        emit errorOccurred(QStringLiteral("本地摄像头采集线程未能退出，已放弃关闭设备，请重启程序"));
+        return;
+    }
     if (m_video) {
         m_video->release();
         delete m_video;
@@ -174,7 +181,24 @@ void LocalCamera::stopGrabbing()
     }
 
     m_thread->requestStop();
-    m_thread->wait(3000);
+
+    // 采集线程可能卡在驱动读帧里（相机掉线、驱动异常等）。Qt 6 对仍在运行的 QThread
+    // 析构会直接 qFatal 中止进程，所以必须先确认它真结束了，再销毁。
+    bool finished = m_thread->wait(3000);
+    if (!finished) {
+        // 3 秒内不肯退出的唯一手段是强制终止（Qt 里线程无法被安全中断）
+        qWarning("本地摄像头采集线程未在 3 秒内退出，执行强制终止");
+        m_thread->terminate();
+        finished = m_thread->wait(2000);
+    }
+    if (!finished) {
+        // 极端情况：连强制终止都没能结束。这里保留线程对象、不销毁也不改状态，
+        // 等它自己退出后由 finished 回调收尾（回调里 wait() 后才 delete）。
+        // 带着「仍在运行」的状态销毁 QThread 会让整个进程被中止，比停不下来更糟。
+        qWarning("本地摄像头采集线程仍未退出，跳过销毁以避免进程被中止");
+        return;
+    }
+
     delete m_thread;
     m_thread = nullptr;
     m_isGrabbing = false;
