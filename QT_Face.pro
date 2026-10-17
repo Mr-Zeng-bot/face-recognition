@@ -167,7 +167,8 @@ DISTFILES += \
     models/README.md \
     models/convert/fix_input_shape.py \
     docs/编译与部署说明.md \
-    docs/DB_RUNTIME_ACCOUNT_AND_DPAPI.md
+    docs/DB_RUNTIME_ACCOUNT_AND_DPAPI.md \
+    docs/RISK_REGISTER.md
 
 # ---------------------------------------------------------------------------
 # 构建后自动部署：Qt 运行时 + ncnn/OpenCV/MVS 运行时 + 模型文件

@@ -200,6 +200,7 @@ jom            # 或 nmake
 
 - [编译与部署说明](docs/编译与部署说明.md) —— 环境、编译、部署、注册流程、排坑清单
 - [数据库运行账号与 DPAPI 实施说明](docs/DB_RUNTIME_ACCOUNT_AND_DPAPI.md) —— 权限边界、DPAPI、验证记录
+- [风险登记与排障手册](docs/RISK_REGISTER.md) —— 已知风险、常见故障检查与恢复步骤
 - [models/README.md](models/README.md) —— 模型来源、重新转换步骤、输出布局与排坑
 - [sql/schema.sql](sql/schema.sql) / [sql/migrate_personnel_source.sql](sql/migrate_personnel_source.sql) —— 建库与迁移
 
