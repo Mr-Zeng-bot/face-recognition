@@ -82,9 +82,18 @@ if (Test-Path -LiteralPath $ModelsDir) {
 }
 
 # ---- 6) 配置文件 ----
+# 优先使用已经配置好的 config.ini；若源码里还没有（例如刚克隆仓库），退回
+# config.ini.example 模板，保证部署目录里始终有一份可编辑的 config.ini，
+# 这样程序报的是“连不上 MySQL”，而不是“找不到配置文件”直接拒绝启动。
 $configSource = Join-Path (Split-Path -Parent $PSScriptRoot) 'config.ini'
 if (-not (Test-Path -LiteralPath $configSource)) {
     $configSource = Join-Path $PSScriptRoot 'config.ini'
+}
+if (-not (Test-Path -LiteralPath $configSource)) {
+    $configSource = Join-Path (Split-Path -Parent $PSScriptRoot) 'config.ini.example'
+    if (-not (Test-Path -LiteralPath $configSource)) {
+        $configSource = Join-Path $PSScriptRoot 'config.ini.example'
+    }
 }
 if (Test-Path -LiteralPath $configSource) {
     $configTarget = Join-Path $Destination 'config.ini'
@@ -92,7 +101,11 @@ if (Test-Path -LiteralPath $configSource) {
         # 已存在的配置可能带有现场写入的 DPAPI 密文，覆盖会让 DPAPI 失效
         Write-Host 'config.ini 已存在，跳过覆盖'
     } else {
-        Copy-Item -LiteralPath $configSource -Destination $Destination -Force
+        # 来源无论是 config.ini 还是模板，部署目录里统一命名为 config.ini
+        Copy-Item -LiteralPath $configSource -Destination $configTarget -Force
+        if ($configSource -like '*.example') {
+            Write-Host '已从 config.ini.example 生成 config.ini，请在部署目录中补齐数据库账号与口令'
+        }
     }
 }
 

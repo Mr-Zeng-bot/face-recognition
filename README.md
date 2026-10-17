@@ -179,7 +179,8 @@ jom            # 或 nmake
 ```
 
 链接完成后 `deploy-runtime.ps1` 会自动把 Qt / ncnn / MVS / OpenCV 运行时、模型与
-`config.ini` 拷到输出目录。把输出目录整体复制到目标机即可运行。
+`config.ini` 拷到输出目录（若源码里还没有 `config.ini`，会自动用 `config.ini.example`
+生成一份，此时需在输出目录中补齐数据库账号与口令）。把输出目录整体复制到目标机即可运行。
 
 ---
 
