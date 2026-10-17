@@ -1,10 +1,10 @@
 # QT_Face · 工业相机人脸识别上位机
 
-基于 **Qt6 + ncnn + MySQL** 的 Windows 桌面端人脸采集/识别上位机，面向工业相机（海康 MVS）
+基于 **Qt6 + OpenCV + ncnn + MySQL** 的 Windows 桌面端人脸采集/识别上位机，面向工业相机（海康 MVS）
 场景：实时采集 → 人脸检测 → 对齐 → 特征提取 → 1:N 比对 → 日志入库。
 
 > A Qt6 desktop face-recognition station for industrial cameras (Hikvision MVS), powered by
-> ncnn (SCRFD + ArcFace) and MySQL.
+> OpenCV, ncnn (SCRFD + ArcFace) and MySQL.
 
 ---
 
@@ -18,6 +18,8 @@
 
 **识别链路**
 
+- OpenCV 5.0 负责 QImage 与 `cv::Mat` 转换、letterbox 缩放、亮度/清晰度判断、
+  5 点相似变换对齐，以及 UVC 采集和视频编码。
 - SCRFD-500M（ncnn）检测人脸框与 5 个关键点。
 - 5 点相似变换对齐到 112×112。
 - ArcFace MobileFaceNet（ncnn）提取 512 维特征并做 L2 归一化。
