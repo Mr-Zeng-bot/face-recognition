@@ -17,6 +17,7 @@
 ## 目录
 
 - [项目简介](#项目简介)
+- [验证状态](#验证状态)
 - [功能特性](#功能特性)
 - [识别流程](#识别流程)
 - [技术栈与环境要求](#技术栈与环境要求)
@@ -39,6 +40,14 @@
 
 > A Qt6 desktop face-recognition station for industrial cameras (Hikvision MVS), powered by
 > OpenCV, ncnn (SCRFD + ArcFace) and MySQL.
+
+## 验证状态
+
+- 海康 MVS 工业相机：已实测跑通设备枚举、连接、采集和识别链路。
+- 本机 UVC 摄像头：已实测采集、识别和正常停止。
+- 人脸注册、1:N 识别、日志写入和抓拍保存：已验证。
+- MySQL 纯 DML 运行账号、DPAPI 口令保护和数据库迁移：已验证。
+- 更换相机型号、固件、MVS 版本或部署主机后，仍建议按现场环境复验相机参数。
 
 ## 功能特性
 
