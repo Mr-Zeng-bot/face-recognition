@@ -174,7 +174,7 @@ GRANT SELECT                       ON face_db.face_schema_meta    TO 'face_app'@
 
 ```powershell
 mkdir build; cd build
-qmake ..\QT_Face.pro
+qmake ..\QT_Face.pro OPENCV_ROOT=D:/path/to/opencv   # 占位路径，换成你的 OpenCV 根目录
 jom            # 或 nmake
 ```
 
