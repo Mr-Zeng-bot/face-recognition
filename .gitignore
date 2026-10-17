@@ -29,8 +29,10 @@
 # 模型权重（体积大，随发行部署包提供，不入库；.param/README/转换脚本仍入库）
 /models/*.bin
 
-# IDE 用户配置
+# IDE 用户配置（Qt Creator 工程配置含本机路径与套件，禁止提交）
 /.qtcreator/
+*.pro.user
+*.pro.user.*
 
 # 打包产物
 *.zip
