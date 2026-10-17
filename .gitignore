@@ -9,6 +9,10 @@
 # 构建产物（含全部 exe/dll/obj 与部署副本，体积以 GB 计）
 /build/
 
+# 海康 MVS SDK（专有，禁止再分发；本机安装 SDK 后由 QT_Face.pro 自动探测）
+/include/
+/lib/
+
 # qmake / moc / uic 生成物
 /Makefile
 /Makefile.*
