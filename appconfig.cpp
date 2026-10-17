@@ -86,6 +86,13 @@ bool AppConfig::load(const QString &iniPath)
     configError.clear();
 
     const bool exists = QFileInfo::exists(iniPath);
+    if (!exists) {
+        // 缺少配置只能由运行账号/端口等内置默认值兜底，且可能静默连到错误账号，
+        // 因此直接记为配置错误，由 FaceDatabase::open 在连库前明确报出。
+        configError = QStringLiteral(
+                          "找不到配置文件 %1，请确认 config.ini 与程序位于同一目录")
+                          .arg(iniPath);
+    }
     // QSettings 使用 IniFormat，即使文件不存在也会以默认值返回，不会抛异常。
     // 注：Qt6 的 INI 文件固定使用 UTF-8，已移除 Qt5 时代的 setIniCodec()。
     QSettings settings(iniPath, QSettings::IniFormat);

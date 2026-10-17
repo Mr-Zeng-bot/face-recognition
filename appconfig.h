@@ -17,7 +17,7 @@ public:
     // 单例入口
     static AppConfig &instance();
 
-    // 从 ini 文件载入配置；文件不存在时使用内置默认值并返回 false
+    // 从 ini 文件载入配置；文件不存在时记入 configError 并返回 false
     bool load(const QString &iniPath);
 
     // 配置文件路径（用于界面展示 / 排错）
@@ -27,8 +27,10 @@ public:
     QString dbHost = QStringLiteral("127.0.0.1");
     int     dbPort = 3306;
     QString dbName = QStringLiteral("face_db");
-    QString dbUser = QStringLiteral("root");
-    QString dbPassword = QStringLiteral("root");
+    // 运行账号一律由 config.ini 提供（推荐 face_app 纯 DML 账号）。
+    // 这里不设内置默认账号，避免 config.ini 缺失时静默以高权限账号连库。
+    QString dbUser;
+    QString dbPassword;
     // MySQL 驱动名：Qt6 官方安装包默认不含 QMYSQL，需自行编译驱动，
     // 详见 docs 中的“MySQL 驱动”章节。
     QString dbDriver = QStringLiteral("QMYSQL");
