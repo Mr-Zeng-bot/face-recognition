@@ -103,7 +103,7 @@ OpenCV 与 MVS 的路径可在 [`opencv.pri`](opencv.pri)、[`QT_Face.pro`](QT_F
 也可在 qmake 命令行覆盖：
 
 ```powershell
-qmake QT_Face.pro OPENCV_ROOT=D:/OpenCV/opencv MVS_SDK="C:/Program Files (x86)/MVS/Development"
+qmake QT_Face.pro OPENCV_ROOT=D:/path/to/opencv MVS_SDK="C:/Program Files (x86)/MVS/Development"
 ```
 
 Qt6 官方安装包默认不含 `QMYSQL` 驱动，需自行编译后放入 Qt 的
