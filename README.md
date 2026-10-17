@@ -221,3 +221,14 @@ jom            # 或 nmake
 | ncnn | BSD-3-Clause（许可文本随 `thirdparty/ncnn-.../include` 头文件提供） |
 | OpenCV | Apache-2.0 |
 | Qt | LGPL-3.0 / GPL（按 Qt 官方条款使用） |
+
+本仓库以动态链接方式使用 Qt（LGPL-3.0），不涉及对 Qt 本身的静态链接或修改。
+
+---
+
+## 许可证
+
+本项目基于 [MIT License](LICENSE) 开源。
+
+版权声明中的 `QT_Face Contributors` 可替换为你的姓名或 GitHub 用户名。
+第三方组件（ncnn / OpenCV / Qt）及海康 MVS SDK、InsightFace 模型权重各自遵循其上游许可，不在本许可范围内。
