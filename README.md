@@ -1,12 +1,44 @@
-# QT_Face · 工业相机人脸识别上位机
+<div align="center">
+
+<h1>QT_Face</h1>
+
+<p><strong>Windows 工业相机人脸识别上位机</strong></p>
+
+<img alt="Windows" src="https://img.shields.io/badge/Windows-10%2F11%20x64-0078D4?logo=windows&logoColor=white">
+<img alt="Qt" src="https://img.shields.io/badge/Qt-6.12.0-41CD52?logo=qt&logoColor=white">
+<img alt="OpenCV" src="https://img.shields.io/badge/OpenCV-5.0.0-5C3EE8?logo=opencv&logoColor=white">
+<img alt="ncnn" src="https://img.shields.io/badge/ncnn-20260526-00A3E0">
+<img alt="MySQL" src="https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white">
+<img alt="C++" src="https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus&logoColor=white">
+<img alt="License" src="https://img.shields.io/badge/License-MIT-yellow.svg">
+
+</div>
+
+## 目录
+
+- [项目简介](#项目简介)
+- [功能特性](#功能特性)
+- [识别流程](#识别流程)
+- [技术栈与环境要求](#技术栈与环境要求)
+- [工具包与下载地址](#工具包与下载地址)
+- [目录结构](#目录结构)
+- [快速开始](#快速开始)
+- [数据库设计](#数据库设计)
+- [项目文档](#项目文档)
+- [问题交流](#问题交流)
+- [说明与注意](#说明与注意)
+- [第三方组件](#第三方组件)
+- [许可证](#许可证)
+
+---
+
+## 项目简介
 
 基于 **Qt6 + OpenCV + ncnn + MySQL** 的 Windows 桌面端人脸采集/识别上位机，面向工业相机（海康 MVS）
 场景：实时采集 → 人脸检测 → 对齐 → 特征提取 → 1:N 比对 → 日志入库。
 
 > A Qt6 desktop face-recognition station for industrial cameras (Hikvision MVS), powered by
 > OpenCV, ncnn (SCRFD + ArcFace) and MySQL.
-
----
 
 ## 功能特性
 
@@ -43,6 +75,18 @@
 - 视频录制、抓拍图片保存。
 - 处理在独立工作线程执行，处理期间 UI 丢帧，不阻塞界面。
 
+## 识别流程
+
+```mermaid
+flowchart LR
+    A[海康 MVS / UVC / 本地图片] --> B[OpenCV 预处理与质量检查]
+    B --> C[SCRFD-500M 人脸检测]
+    C --> D[5 点对齐 112×112]
+    D --> E[ArcFace 512 维特征]
+    E --> F[MySQL 1:N 余弦相似度]
+    F --> G[界面结果 + face_log + 抓拍图]
+```
+
 ---
 
 ## 技术栈与环境要求
@@ -60,6 +104,34 @@
 部署时使用的模型固定为 `models/scrfd_500m.*` 与 `models/arcface_mbf.*`；模型产物
 不随公开仓库提交，需要按 [`models/README.md`](models/README.md) 自行下载和转换。
 更换模型会使已入库特征失效，需要重新采集全部人员模板。
+
+## 工具包与下载地址
+
+以下均为官方发布页；下载版本请以现场环境与发布页说明为准。
+
+| 工具 / 组件 | 用途 | 官方获取地址 |
+|---|---|---|
+| Visual Studio 2022 Build Tools | MSVC x64 编译器和 Windows SDK | https://visualstudio.microsoft.com/visual-cpp-build-tools/ |
+| Git for Windows | 克隆仓库、版本管理 | https://git-scm.com/download/win |
+| Qt 6.12.0 Open Source | Widgets、Sql、qmake | https://www.qt.io/download-open-source |
+| Qt 6.12.0 归档目录 | 指定版本和离线包 | https://download.qt.io/archive/qt/6.12/6.12.0/ |
+| OpenCV 5.0.0 | 图像预处理、对齐、采集和编码 | https://opencv.org/releases/ |
+| ncnn | SCRFD / ArcFace 推理引擎 | https://github.com/Tencent/ncnn/releases |
+| jom | Qt/MSVC 并行构建工具 | https://download.qt.io/official_releases/jom/ |
+| MySQL Installer 8.0 | MySQL Server、客户端库、Workbench | https://dev.mysql.com/downloads/installer/ |
+| Qt QMYSQL 驱动说明 | Qt 与 MySQL 驱动配置 | https://doc.qt.io/qt-6/sql-driver.html#qmysql |
+| 海康机器人 MVS SDK | 工业相机 SDK 和运行时 | https://www.hikrobotics.com/cn/machinevision/service/download |
+| Microsoft VC++ 运行库 | 目标机运行依赖 | https://learn.microsoft.com/cpp/windows/latest-supported-vc-redist |
+| Python for Windows | 模型转换工具运行环境 | https://www.python.org/downloads/windows/ |
+| pnnx | PyTorch/ONNX 转 ncnn | https://github.com/pnnx/pnnx/releases |
+| InsightFace buffalo_sc | SCRFD 与 MobileFaceNet 原始模型 | https://github.com/deepinsight/insightface/releases/tag/v0.7 |
+
+说明：
+
+- 仓库已包含 ncnn x64 头文件、库和运行时，无需再次下载 ncnn 才能编译；官方链接用于升级或重新获取。
+- Qt 安装包通常不包含 `QMYSQL` 驱动，需要按本文档第五节单独编译。
+- 海康 MVS SDK 为专有 SDK，不随仓库分发，需要安装后通过 `MVS_SDK` 指向本机路径。
+- InsightFace 模型仅限非商业研究用途，模型产物不随仓库提交。
 
 ---
 
@@ -199,7 +271,7 @@ jom            # 或 nmake
 
 ---
 
-## 文档
+## 项目文档
 
 - [编译与部署说明](docs/编译与部署说明.md) —— 环境、编译、部署、注册流程、排坑清单
 - [数据库运行账号与 DPAPI 实施说明](docs/DB_RUNTIME_ACCOUNT_AND_DPAPI.md) —— 权限边界、DPAPI、验证记录
