@@ -1,0 +1,22 @@
+# 只影响 Qt Creator / clangd 的代码模型，不参与 MSVC 实际编译。
+#
+# 问题：Qt Creator 的 clangd 集成会在编译命令里主动抹掉 __clang__（-U__clang__ 及
+# -U__clang_major__ 等，见 build/.../.qtc_clangd/compile_commands.json）。而 MSVC 14.5x
+# 的 __msvc_int128.hpp 用 #ifdef __clang__ 判断是否调用 MSVC 专有的 _udiv128/_div128：
+# 被抹掉后头文件走了 MSVC 分支，clangd 于是误报
+# "use of undeclared identifier '_udiv128'; did you mean '_UDiv128'?"。
+#
+# 处理：给代码模型强制包含一个补丁头文件，把 clang 缺的这两个内置函数声明补上
+# （见 .clangd-msvc-intrinsics.h）。这里用 -include 而不是 Qt Creator 的 -U__clang__，
+# 是为了不动 __clang__ —— 把 __clang__ 设回去会让 MSVC STL 的版本检查
+# （error STL1000: Unexpected compiler version, expected Clang 20 or newer）失败。
+CompileFlags:
+  Add: ['/FID:/QT_Face/.clangd-msvc-intrinsics.h']
+#
+# 另外两条是第三方头文件与 MSVC 的"兼容告警"，只在 Qt/ncnn 头文件里出现：
+#   C4273 inconsistent-dllimport —— ncnn/gpu.h 里 create_gpu_instance 的 friend 声明
+#        没带导出属性（上游写法问题，函数仍在 DLL 里，链接正常）
+#   C4996 deprecated-declarations —— Qt 头文件自己弃用了 compressEvent
+# 这里静音的是代码模型侧的展示；自己源码里的弃用调用在 MSVC 编译时仍会告警。
+Diagnostics:
+  Suppress: [inconsistent-dllimport, deprecated-declarations]
