@@ -1,17 +1,22 @@
 # models 目录说明（人脸识别模型）
 
-本目录存放 ncnn 格式的两个人脸识别模型，程序启动时按 `config.ini` 中的路径加载：
+本目录说明如何在本机准备 ncnn 格式的两个人脸识别模型。程序启动时按
+`config.ini` 中的路径加载：
 
 > 当前项目的部署模型固定为下表中的 SCRFD-500M 与 ArcFace MobileFaceNet。
 > 跨机器部署时应原样复制 `models/`，不要替换模型文件；更换模型会使已入库特征失效，
 > 需要重新采集所有人员模板。
+
+**公开仓库不会提交 `.param`、`.bin`、`.onnx` 等模型产物。** 仓库只包含本说明、
+转换脚本和程序代码。原因是 InsightFace 的训练数据及由其训练的模型仅允许非商业研究
+用途；这些文件不纳入项目的 MIT 许可范围，也不能随代码仓库公开分发。
 
 | 文件 | 作用 | 输入 | 输出 |
 |---|---|---|---|
 | `scrfd_500m.param` / `scrfd_500m.bin` | SCRFD 人脸检测 | 640×640 RGB | 人脸框 + 5 关键点 |
 | `arcface_mbf.param` / `arcface_mbf.bin` | ArcFace 特征提取 | 112×112 RGB | 512 维特征 |
 
-当前目录中的文件由 InsightFace 官方模型转换而来：
+本地模型由 InsightFace 官方模型转换而来：
 
 - 原始模型：`buffalo_sc.zip` 里的 `det_500m.onnx`（SCRFD-500M）与 `w600k_mbf.onnx`（MobileFaceNet 主干）
 - 转换工具：`pnnx`（ncnn 官方新一代转换工具，`pip install pnnx`）
@@ -45,10 +50,23 @@ Move-Item w600k_mbf.ncnn.bin         arcface_mbf.bin   -Force
 ```
 
 构建后 `deploy-runtime.ps1` 会自动把本目录的文件拷到输出目录的 `models/` 下。
+这一步只复制本机已经准备好的模型文件，不会从 Git 仓库下载模型。
+
+## 二、许可证要求
+
+InsightFace 代码采用 MIT 许可，但其训练数据和训练出的模型只允许非商业研究使用。
+下载或使用 `buffalo_sc.zip` 前必须阅读上游许可证：
+
+```text
+https://github.com/deepinsight/insightface
+```
+
+如果项目需要商业使用，必须自行替换为具有商业许可的人脸模型；本项目固定模型和
+特征维度的设计没有覆盖这种迁移。
 
 ---
 
-## 二、输出布局说明（换模型时注意）
+## 三、输出布局说明（换模型时注意）
 
 SCRFD 官方 onnx 末尾是 `Transpose + Reshape`，转换后输出是**扁平**布局：
 
@@ -63,7 +81,7 @@ SCRFD 官方 onnx 末尾是 `Transpose + Reshape`，转换后输出是**扁平**
 
 ---
 
-## 三、排坑
+## 四、排坑
 
 1. **输入尺寸**：检测模型按 640×640 转换，`config.ini` 的 `Detector.inputSize` 必须
    同样是 640，否则框会错位或直接报输出尺寸异常。
@@ -76,7 +94,7 @@ SCRFD 官方 onnx 末尾是 `Transpose + Reshape`，转换后输出是**扁平**
 
 ---
 
-## 四、不接相机也能自检
+## 五、不接相机也能自检
 
 写一个控制台工程直接调用 `FaceDetector` / `FaceAligner` / `FaceExtractor`（不需要数据库），
 对一张已知人脸照片跑检测与特征提取，检查框位置、关键点、特征维度与模长是否为 1.0。

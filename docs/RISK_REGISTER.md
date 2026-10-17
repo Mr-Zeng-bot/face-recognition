@@ -171,15 +171,16 @@ cmd /c "mysql -u root -p < sql\migrate_personnel_source.sql"
 3. 在生产环境用 DPAPI 工具生成 `passwordDpapi`；
 4. 不要提交 `config.ini`。
 
-### R-08 模型权重不在 Git 仓库中
+### R-08 模型产物不在 Git 仓库中
 
 | 项目 | 内容 |
 |---|---|
 | 等级 | 低 |
 | 影响 | 新环境构建成功但启动时模型加载失败 |
-| 触发条件 | 没有复制 `models/*.bin` |
+| 触发条件 | 没有按说明下载并转换模型 |
 
-当前仓库只提交 `.param`、说明和转换脚本，模型权重需要单独随发行包部署。
+当前仓库只提交模型说明和转换脚本。`.param`、`.bin`、`.onnx` 等产物均被
+`.gitignore` 排除，需要用户按 `models/README.md` 在本地生成，并随运行包部署。
 
 确认文件：
 

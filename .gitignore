@@ -23,11 +23,16 @@
 *.exp
 *.ilk
 
-# 抓拍图片与录像
-/captures/
+# 抓拍图片与录像（无论运行时目录配置在哪里都不入库）
+captures/
 
-# 模型权重（体积大，随发行部署包提供，不入库；.param/README/转换脚本仍入库）
+# InsightFace 模型产物仅限非商业研究，且体积较大，不入公开仓库。
+# 仓库只保留 README 与转换脚本，用户按说明自行下载和转换。
+/models/*.param
 /models/*.bin
+/models/*.onnx
+/models/*.pnnx.*
+/models/*.ncnn.*
 
 # IDE 用户配置（Qt Creator 工程配置含本机路径与套件，禁止提交）
 /.qtcreator/

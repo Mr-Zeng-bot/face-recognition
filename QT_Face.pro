@@ -17,7 +17,7 @@
 #     imagestorage.*       QImage -> cv::Mat 转换（供录像编码用）
 #     videorecorder.*      视频录制
 #     mainwindow.*         界面
-#     models/              SCRFD / ArcFace 的 ncnn 模型文件
+#     models/              模型说明与转换脚本（模型产物不入公开仓库）
 #     sql/schema.sql       MySQL 建表语句
 #     docs/                编译与部署说明
 # ============================================================================
@@ -164,6 +164,8 @@ DISTFILES += \
     sql/migrate_personnel_source.sql \
     sql/check_cache_triggers.sql \
     tools/set-db-password-dpapi.ps1 \
+    THIRD_PARTY_NOTICES.md \
+    thirdparty/ncnn-20260526-windows-vs2022-shared/LICENSE.txt \
     models/README.md \
     models/convert/fix_input_shape.py \
     docs/编译与部署说明.md \

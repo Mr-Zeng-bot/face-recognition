@@ -55,8 +55,9 @@
 | 海康 MVS SDK | 需**自行安装**（默认 `C:\Program Files (x86)\MVS`） |
 | MySQL | 8.0.x + Qt 的 `QMYSQL` 驱动 + 运行期 `libmysql.dll` |
 
-模型文件固定为 `models/scrfd_500m.*` 与 `models/arcface_mbf.*`；更换模型会使已入库特征失效，
-需要重新采集全部人员模板。模型转换步骤与排坑见 [`models/README.md`](models/README.md)。
+部署时使用的模型固定为 `models/scrfd_500m.*` 与 `models/arcface_mbf.*`；模型产物
+不随公开仓库提交，需要按 [`models/README.md`](models/README.md) 自行下载和转换。
+更换模型会使已入库特征失效，需要重新采集全部人员模板。
 
 ---
 
@@ -86,7 +87,7 @@ QT_Face/
 │
 ├─ include/, lib/         海康 MVS SDK 头文件与导入库（不入库，直接使用已安装的 SDK）
 ├─ thirdparty/ncnn-...    ncnn 预编译库
-├─ models/                ncnn 模型（*.bin 不入库）+ 转换脚本
+├─ models/                模型说明与转换脚本（模型产物不入库）
 ├─ sql/                   建表与迁移脚本
 ├─ docs/                  编译部署说明、数据库运行账号说明
 └─ tools/                 DPAPI 口令设置脚本
@@ -201,6 +202,7 @@ jom            # 或 nmake
 - [编译与部署说明](docs/编译与部署说明.md) —— 环境、编译、部署、注册流程、排坑清单
 - [数据库运行账号与 DPAPI 实施说明](docs/DB_RUNTIME_ACCOUNT_AND_DPAPI.md) —— 权限边界、DPAPI、验证记录
 - [风险登记与排障手册](docs/RISK_REGISTER.md) —— 已知风险、常见故障检查与恢复步骤
+- [第三方组件与许可证声明](THIRD_PARTY_NOTICES.md) —— ncnn、OpenCV、Qt、InsightFace 等
 - [models/README.md](models/README.md) —— 模型来源、重新转换步骤、输出布局与排坑
 - [sql/schema.sql](sql/schema.sql) / [sql/migrate_personnel_source.sql](sql/migrate_personnel_source.sql) —— 建库与迁移
 
@@ -208,9 +210,10 @@ jom            # 或 nmake
 
 ## 说明与注意
 
-- **模型权重 `models/*.bin` 不入库**（体积原因）。来源为 InsightFace 官方模型
-  （`buffalo_sc.zip` 的 `det_500m.onnx` / `w600k_mbf.onnx`）经 `pnnx` 转换，
-  获取与转换步骤见 [`models/README.md`](models/README.md)；使用前请自行核对上游模型的许可条款。
+- **模型产物 `.param`、`.bin`、`.onnx` 等均不入库**。来源为 InsightFace 官方模型
+  （`buffalo_sc.zip` 的 `det_500m.onnx` / `w600k_mbf.onnx`）经 `pnnx` 转换。
+  InsightFace 训练数据及由其训练的模型仅限非商业研究使用；获取、转换和许可说明见
+  [`models/README.md`](models/README.md)。
 - **海康 MVS SDK** 为用户自备的专有 SDK，路径通过 `MVS_SDK` 指定。
 - 运行期产生的 `captures/`（抓拍图）与数据库内容含**人脸等个人信息**，
   已在 `.gitignore` 中排除，请勿提交到版本库。
@@ -219,7 +222,7 @@ jom            # 或 nmake
 
 | 组件 | 许可 |
 |---|---|
-| ncnn | BSD-3-Clause（许可文本随 `thirdparty/ncnn-.../include` 头文件提供） |
+| ncnn | BSD-3-Clause，许可文本见 `thirdparty/ncnn-20260526-windows-vs2022-shared/LICENSE.txt` |
 | OpenCV | Apache-2.0 |
 | Qt | LGPL-3.0 / GPL（按 Qt 官方条款使用） |
 
@@ -232,4 +235,5 @@ jom            # 或 nmake
 本项目基于 [MIT License](LICENSE) 开源。
 
 版权声明见 [LICENSE](LICENSE)：`Copyright (c) 2026 Mr-Zeng-bot`。
-第三方组件（ncnn / OpenCV / Qt）及海康 MVS SDK、InsightFace 模型权重各自遵循其上游许可，不在本许可范围内。
+第三方组件（ncnn / OpenCV / Qt）及海康 MVS SDK、InsightFace 模型各自遵循其上游
+许可，不在本许可范围内。完整说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

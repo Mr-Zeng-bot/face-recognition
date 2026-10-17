@@ -145,6 +145,24 @@ if (Test-Path -LiteralPath $toolsSource) {
     Write-Warning "Tools directory not found: $toolsSource"
 }
 
+# ---- 6e) 项目与第三方许可证 ----
+foreach ($licenseName in @('LICENSE', 'THIRD_PARTY_NOTICES.md')) {
+    $licenseSource = Join-Path $PSScriptRoot $licenseName
+    if (Test-Path -LiteralPath $licenseSource) {
+        Copy-Item -LiteralPath $licenseSource -Destination $Destination -Force
+    }
+}
+
+$ncnnRoot = Split-Path -Parent (Split-Path -Parent $NcnnBin)
+$ncnnLicense = Join-Path $ncnnRoot 'LICENSE.txt'
+if (Test-Path -LiteralPath $ncnnLicense) {
+    $licenseTarget = Join-Path $Destination 'docs\licenses'
+    New-Item -ItemType Directory -Force -Path $licenseTarget | Out-Null
+    Copy-Item -LiteralPath $ncnnLicense -Destination $licenseTarget -Force
+} else {
+    Write-Warning "ncnn LICENSE.txt not found: $ncnnLicense"
+}
+
 # ---- 7) MSVC Release 运行库 ----
 if ($Configuration -eq 'release') {
     $redistRoots = @()
