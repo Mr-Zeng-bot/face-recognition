@@ -79,12 +79,12 @@
 
 ```mermaid
 flowchart LR
-    A[海康 MVS / UVC / 本地图片] --> B[OpenCV 预处理与质量检查]
-    B --> C[SCRFD-500M 人脸检测]
-    C --> D[5 点对齐 112×112]
-    D --> E[ArcFace 512 维特征]
-    E --> F[MySQL 1:N 余弦相似度]
-    F --> G[界面结果 + face_log + 抓拍图]
+    A["海康 MVS / UVC / 本地图片"] --> B["OpenCV 预处理与质量检查"]
+    B --> C["SCRFD-500M 人脸检测"]
+    C --> D["5 点对齐 112x112"]
+    D --> E["ArcFace 512 维特征"]
+    E --> F["MySQL 1:N 余弦相似度"]
+    F --> G["界面结果 / face_log / 抓拍图"]
 ```
 
 ---
