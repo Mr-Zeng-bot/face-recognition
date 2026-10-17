@@ -84,7 +84,7 @@ QT_Face/
 ├─ appconfig.*            配置读取（含 DPAPI 口令解密）
 ├─ imagedata.h            共享数据结构
 │
-├─ include/, lib/         海康 MVS SDK 头文件与导入库
+├─ include/, lib/         海康 MVS SDK 头文件与导入库（不入库，直接使用已安装的 SDK）
 ├─ thirdparty/ncnn-...    ncnn 预编译库
 ├─ models/                ncnn 模型（*.bin 不入库）+ 转换脚本
 ├─ sql/                   建表与迁移脚本
