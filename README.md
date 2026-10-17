@@ -67,6 +67,7 @@ QT_Face/
 ├─ QT_Face.pro            qmake 工程（OpenCV / ncnn / QtSql / MVS 配置 + 构建后自动部署）
 ├─ opencv.pri, ncnn.pri   第三方依赖配置
 ├─ deploy-runtime.ps1     构建后部署脚本（Qt/ncnn/MVS/OpenCV 运行时 + 模型 + 配置）
+├─ config.ini.example      运行时配置模板（复制为 config.ini 后使用）
 ├─ config.ini             运行时配置（不入库，需自行创建，见下方“配置”）
 │
 ├─ main.cpp               程序入口
@@ -125,8 +126,14 @@ cmd /c "mysql -u root -p < sql\migrate_personnel_source.sql"
 
 ### 3. 创建 config.ini
 
-程序读取 exe 同目录的 `config.ini`（与源码目录同名的 `config.ini` 不入库）。
-最小配置：
+程序读取 **exe 同目录** 的 `config.ini`，该文件不入版本库。仓库提供了完整模板
+[`config.ini.example`](config.ini.example)，复制一份改名即可：
+
+```powershell
+Copy-Item config.ini.example config.ini
+```
+
+至少要按现场改 `[Database]` 段：
 
 ```ini
 [Database]
@@ -139,6 +146,8 @@ passwordDpapi=
 driver=QMYSQL
 cacheSyncIntervalMs=1000
 ```
+
+其余模型路径、识别阈值、质量门限、抓拍目录等在模板中已给出默认值，按需调整。
 
 运行账号建议使用**仅 DML** 的专用账号（不要用 root）：
 

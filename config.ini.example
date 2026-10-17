@@ -1,0 +1,64 @@
+; ============================================================================
+; config.ini.example —— 运行时配置模板
+;
+; 用法：复制本文件为同目录下的 config.ini，再按现场情况修改。
+;   PowerShell:  Copy-Item config.ini.example config.ini
+;   cmd:         copy config.ini.example config.ini
+;
+; 程序启动时读取「exe 同目录」的 config.ini；本文件里的相对路径（模型参数、
+; 抓拍目录）都按「config.ini 所在目录」解析，部署时该目录即 exe 目录。
+; config.ini 不入版本库（见 .gitignore），修改后需重新启动程序。
+; ============================================================================
+
+[Database]
+; MySQL 连接信息（QtSql / QMYSQL 驱动）
+host=127.0.0.1
+port=3306
+name=face_db
+; 推荐使用仅 DML 权限的专用账号，不要用 root
+user=face_app
+; password 留空，改用下面的 DPAPI 密文（推荐做法）
+password=
+; 用 tools\set-db-password-dpapi.ps1 生成 DPAPI 密文后填在这里。
+; 必须由【实际启动程序的 Windows 用户】执行：
+;   .\tools\set-db-password-dpapi.ps1 -ConfigPath .\config.ini
+; 密文与加密它的 Windows 用户/机器绑定，换机器或换用户后需重新生成。
+passwordDpapi=
+; 驱动名：QMYSQL 需自行编译 Qt 的 MySQL 驱动；若使用 ODBC 数据源可改为 QODBC
+driver=QMYSQL
+; 外部在 MySQL 中修改人员/模板后，程序检查缓存版本的周期（毫秒）
+cacheSyncIntervalMs=1000
+
+[Detector]
+; SCRFD 人脸检测模型（ncnn 格式）
+param=models/scrfd_500m.param
+bin=models/scrfd_500m.bin
+; 输入边长，必须为 32 的整数倍（500M 常用 640）
+inputSize=640
+scoreThreshold=0.5
+nmsThreshold=0.4
+
+[Extractor]
+; ArcFace 特征提取模型（ncnn 格式，输出 512 维）
+param=models/arcface_mbf.param
+bin=models/arcface_mbf.bin
+featureDim=512
+
+[Recognition]
+; 余弦相似度阈值：越高越严格，ArcFace 常用 0.5~0.6
+matchThreshold=0.50
+
+[Quality]
+; 人脸质量判断阈值：不满足则直接丢弃，不参与识别
+minFaceWidth=60
+minBlurScore=100
+minBrightness=40
+maxBrightness=220
+
+[Storage]
+; 抓拍人脸图片保存目录（相对本文件所在目录，部署时即 exe 目录）
+imageDir=captures
+
+[Inference]
+useVulkan=0
+numThreads=4
